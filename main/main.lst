@@ -1,0 +1,103 @@
+     1                                  ;------------------------------------------------------------------------------
+     2                                  ; Executable file	:	main
+     3                                  ; Version			:	0.0
+     4                                  ; Created date		:	2018-01-16
+     5                                  ; Last update		:	2018-01-16
+     6                                  ; Author			:	Boris
+     7                                  ; Description		:	???
+     8                                  ;
+     9                                  ; Assemble			:	see makefile
+    10                                  ;------------------------------------------------------------------------------
+    11                                  
+    12                                  section .bss
+    13 00000000 <res 00000008>          	timeval_buf: resb 8				; reserve pointer for timeval structure
+    14                                  									; struct timeval {
+    15                                  									;	time_t		tv_sec; /* seconds */
+    16                                  									;	suseconds_t	tv_usec; /* microseconds  */
+    17                                  									; }
+    18                                  
+    19                                  section .data
+    20                                  	cnv_long_str: 					; empty string to hold convertion string
+    21                                  									; of 32 NILs, 1 linefeed and 
+    22                                  									; 1 carriage return
+    23 00000000 000000000000000000-     				db 0x0,0x0,0x0,0x0,0x0,0x0,0x0,0x0,0x0,0x0,
+    23 00000009 00                 
+    24 0000000A 000000000000000000-     				db 0x0,0x0,0x0,0x0,0x0,0x0,0x0,0x0,0x0,0x0,
+    24 00000013 00                 
+    25 00000014 000000000000000000-     				db 0x0,0x0,0x0,0x0,0x0,0x0,0x0,0x0,0x0,0x0,
+    25 0000001D 00                 
+    26 0000001E 0000                    				db 0x0,0x0
+    27                                  	cnv_long_str_len: equ $-cnv_long_str	; length of cnv_long_str
+    28                                  
+    29                                  section .text
+    30                                  	global _start					; declaring starting point
+    31                                  
+    32                                  _start:
+    33 00000000 B04E                    	mov al,0x4e						; sys_gettimeofday code
+    34 00000002 BB[00000000]            	mov ebx,timeval_buf				; supplying timeval pointer
+    35 00000007 CD80                    	int 0x80						; making call to kernel
+    36                                  
+    37 00000009 A1[00000000]            	mov eax,dword[timeval_buf]		; loading first part of timeval to eax
+    38 0000000E B30A                    	mov bl,0x0a						; loading decimal base to bl
+    39 00000010 E832000000              	call cnv_long					; executing conversion function
+    40                                  
+    41 00000015 B804000000              	mov eax,0x04					;
+    42 0000001A BB01000000              	mov ebx,0x01					;
+    43 0000001F 88CA                    	mov dl,cl						; printing generated string to stdout
+    44 00000021 89F1                    	mov ecx,esi						;
+    45 00000023 CD80                    	int 0x80						;
+    46                                  
+    47 00000025 A1[04000000]            	mov eax,dword[timeval_buf+4]	; loading second part of timeval to eax
+    48 0000002A B30A                    	mov bl,0x0a						; loding decimal base to bl
+    49 0000002C E816000000              	call cnv_long					; executing convertion function
+    50                                  
+    51 00000031 B804000000              	mov eax,0x04					;
+    52 00000036 BB01000000              	mov ebx,0x01					;
+    53 0000003B 88CA                    	mov dl,cl						; printing generated string to stdout
+    54 0000003D 89F1                    	mov ecx,esi						;
+    55 0000003F CD80                    	int 0x80						;
+    56                                  
+    57 00000041 B001                    	mov al,0x01						; setting syscall code 'exit'
+    58 00000043 B300                    	mov bl,0x00						; setting return code
+    59 00000045 CD80                    	int 0x80						; performing interrupt
+    60                                  
+    61                                  
+    62                                  ;------------------------------------------------------------------------------
+    63                                  ; cnv_long	:	converts number to provided base and stores in a string
+    64                                  ; updated	:	2018-01-16
+    65                                  ; in		:	eax - number to convert
+    66                                  ;				bl	- base
+    67                                  ; out		:	esi - pointer to output string
+    68                                  ;				cl	- string length
+    69                                  ; modifies	:	[none]
+    70                                  ; calls		:	[none]
+    71                                  ;
+    72                                  
+    73                                  cnv_long:
+    74 00000047 50                      	push eax						;
+    75 00000048 52                      	push edx						; preserving registers
+    76 00000049 53                      	push ebx						;
+    77                                  
+    78 0000004A BE[1F000000]            	mov esi,cnv_long_str+cnv_long_str_len-1	; setting esi string pointer to the
+    79                                  											; end of string
+    80 0000004F B101                    	mov cl,0x01						; setting output string length (lf & cr)
+    81 00000051 83E30F                  	and ebx,0x0f					; masking out first byte of ebx register
+    82                                  .cnv:
+    83 00000054 31D2                    	xor edx,edx						; emptying edx (remainder register)
+    84 00000056 F7F3                    	div ebx							; deviding eax by ebx, remainder in edx
+    85 00000058 80C230                  	add dl,'0'						; makinf digit an ascii char e.g. 1 -> '1'
+    86 0000005B FEC1                    	inc cl							; increment string size counter
+    87 0000005D 80FA39                  	cmp dl,'9'						; check if base >10
+    88 00000060 7603                    	jbe .append						; go to storing portion of the algorithms 
+    89                                  									; if no
+    90 00000062 80C228                  	add dl,'a'-'9'					; else get a corresponding letter
+    91                                  .append:
+    92 00000065 8816                    	mov byte[esi],dl				; store digit in string
+    93 00000067 4E                      	dec esi							; move string pointer one up
+    94 00000068 6683F800                	cmp ax,0						; check if number is fully converted
+    95 0000006C 75E6                    	jnz .cnv						; go to .cnz if not
+    96                                  	
+    97 0000006E 5B                      	pop ebx							;
+    98 0000006F 5A                      	pop edx							; preserving registers
+    99 00000070 58                      	pop eax							;
+   100 00000071 C3                      	ret
