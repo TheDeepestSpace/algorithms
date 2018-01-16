@@ -23,7 +23,8 @@ section .data
 				db 0x0,0x0,0x0,0x0,0x0,0x0,0x0,0x0,0x0,0x0,
 				db 0x0,0x0,0x0,0x0,0x0,0x0,0x0,0x0,0x0,0x0,
 				db 0x0,0x0,0x0,0x0,0x0,0x0,0x0,0x0,0x0,0x0,
-				db 0x0,0x0,0x0a,0x0d
+				db 0x0,0x0
+	cnv_long_str_len: equ $-cnv_long_str	; length of cnv_long_str
 
 section .text
 	global _start					; declaring starting point
@@ -58,7 +59,6 @@ _start:
 	int 0x80						; performing interrupt
 
 
-
 ;------------------------------------------------------------------------------
 ; cnv_long	:	converts number to provided base and stores in a string
 ; updated	:	2018-01-16
@@ -75,9 +75,9 @@ cnv_long:
 	push edx						; preserving registers
 	push ebx						;
 
-	mov esi,cnv_long_str+31			; setting string pointer register to the
-									; end of the reserved string
-	mov cl,0x02						; setting output string length (lf & cr)
+	mov esi,cnv_long_str+cnv_long_str_len-1	; setting esi string pointer to the
+											; end of string
+	mov cl,0x01						; setting output string length (lf & cr)
 	and ebx,0x0f					; masking out first byte of ebx register
 .cnv:
 	xor edx,edx						; emptying edx (remainder register)
