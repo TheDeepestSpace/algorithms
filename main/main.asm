@@ -35,6 +35,9 @@ _start:
 	call print_time					; executing print_time
 	call print_endl					; executing print_endl
 
+	call print_time
+	call print_endl
+
 	mov al,0x01						; setting syscall code 'exit'
 	mov bl,0x0						; setting return code
 	int 0x80						; performing interrupt
