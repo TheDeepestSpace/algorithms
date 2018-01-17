@@ -12,8 +12,8 @@
 section .bss
 	timeval_buf: resb 8				; reserve pointer for timeval structure
 									; struct timeval {
-									;	time_t		tv_sec; /* seconds */
-									;	suseconds_t	tv_usec; /* microseconds  */
+									;	time_t		tv_sec; /* 4 bytes */
+									;	suseconds_t	tv_usec; /* 4 bytes  */
 									; }
 
 section .data
