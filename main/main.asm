@@ -25,11 +25,62 @@ section .data
 				db 0x0,0x0,0x0,0x0,0x0,0x0,0x0,0x0,0x0,0x0,
 				db 0x0,0x0
 	cnv_long_str_len: equ $-cnv_long_str	; length of cnv_long_str
+	endl: db 0x0a,0x0e				; end of line string declaration
+	endl_len: equ $-endl			; end of line string length declaration
 
 section .text
 	global _start					; declaring starting point
 
 _start:
+	call print_time					; executing print_time
+	call print_endl					; executing print_endl
+
+	mov al,0x01						; setting syscall code 'exit'
+	mov bl,0x0						; setting return code
+	int 0x80						; performing interrupt
+
+;------------------------------------------------------------------------------
+; print_endl	:	prints line feed and carriage return characters to stdout
+; updated		:	2018-01-16
+; in			:	[none]
+; out			:	[none]
+; modifies		:	[none]
+; calls			:	[none]
+;
+
+print_endl:
+	push eax						;
+	push ebx						; preserving registers
+	push ecx						;
+	
+	mov eax,0x04					;
+	mov ebx,0x01					;
+	mov ecx,endl					; printing endl string to stdout
+	mov edx,endl_len				;
+	int 0x80						;
+
+	pop ecx							;
+	pop ebx							; preserving registers
+	pop eax							;
+	ret								; returning control
+
+
+;------------------------------------------------------------------------------
+; print_time	:	prints timeval concatenated in decimal format to stdout
+; updated		:	2018-01-16
+; in			:	[none]
+; out			:	[none]
+; modifies		:	[none]
+; calls			:	cnv_long
+;
+
+print_time:
+	push eax						;
+	push ebx						;
+	push ecx						; preserving registers
+	push edx						;
+	push esi						;
+
 	mov al,0x4e						; sys_gettimeofday code
 	mov ebx,timeval_buf				; supplying timeval pointer
 	int 0x80						; making call to kernel
@@ -45,7 +96,7 @@ _start:
 	int 0x80						;
 
 	mov eax,dword[timeval_buf+4]	; loading second part of timeval to eax
-	mov bl,0x0a						; loding decimal base to bl
+	mov bl,0x0a						; loading decimal base do bl
 	call cnv_long					; executing convertion function
 
 	mov eax,0x04					;
@@ -54,9 +105,12 @@ _start:
 	mov ecx,esi						;
 	int 0x80						;
 
-	mov al,0x01						; setting syscall code 'exit'
-	mov bl,0x00						; setting return code
-	int 0x80						; performing interrupt
+	pop esi							;
+	pop edx							;
+	pop ecx							; preserving registers
+	pop ebx							;
+	pop eax							;
+	ret								; returning control
 
 
 ;------------------------------------------------------------------------------
@@ -97,4 +151,4 @@ cnv_long:
 	pop ebx							;
 	pop edx							; preserving registers
 	pop eax							;
-	ret
+	ret								; returning control
