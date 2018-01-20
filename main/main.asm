@@ -35,8 +35,8 @@ _start:
 	call print_time					; executing print_time
 	call print_endl					; executing print_endl
 
-	call print_time
-	call print_endl
+	call print_time					; executing print_time [1]
+	call print_endl					; executing print_endl [1]
 
 	mov al,0x01						; setting syscall code 'exit'
 	mov bl,0x0						; setting return code
@@ -150,7 +150,7 @@ cnv_long:
 	dec esi							; move string pointer one up
 	cmp ax,0						; check if number is fully converted
 	jnz .cnv						; go to .cnz if not
-	
+
 	pop ebx							;
 	pop edx							; preserving registers
 	pop eax							;
