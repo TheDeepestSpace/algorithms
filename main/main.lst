@@ -12,8 +12,8 @@
     12                                  section .bss
     13 00000000 <res 00000008>          	timeval_buf: resb 8				; reserve pointer for timeval structure
     14                                  									; struct timeval {
-    15                                  									;	time_t		tv_sec; /* seconds */
-    16                                  									;	suseconds_t	tv_usec; /* microseconds  */
+    15                                  									;	time_t		tv_sec; /* 4 bytes */
+    16                                  									;	suseconds_t	tv_usec; /* 4 bytes  */
     17                                  									; }
     18                                  
     19                                  section .data
@@ -35,126 +35,149 @@
     32                                  	global _start					; declaring starting point
     33                                  
     34                                  _start:
-    35 00000000 E832000000              	call print_time					; executing print_time
-    36 00000005 E810000000              	call print_endl					; executing print_endl
+    35 00000000 E875000000              	call print_time					; executing print_time
+    36 00000005 E853000000              	call print_endl					; executing print_endl
     37                                  
-    38 0000000A E828000000              	call print_time
-    39 0000000F E806000000              	call print_endl
+    38 0000000A E86B000000              	call print_time
+    39 0000000F E849000000              	call print_endl
     40                                  
-    41 00000014 B001                    	mov al,0x01						; setting syscall code 'exit'
-    42 00000016 B300                    	mov bl,0x0						; setting return code
-    43 00000018 CD80                    	int 0x80						; performing interrupt
+    41 00000014 B84E000000              	mov eax,0x4e
+    42 00000019 BB[00000000]            	mov ebx,timeval_buf
+    43 0000001E CD80                    	int 0x80
     44                                  
-    45                                  ;------------------------------------------------------------------------------
-    46                                  ; print_endl	:	prints line feed and carriage return characters to stdout
-    47                                  ; updated		:	2018-01-16
-    48                                  ; in			:	[none]
-    49                                  ; out			:	[none]
-    50                                  ; modifies		:	[none]
-    51                                  ; calls			:	[none]
-    52                                  ;
+    45 00000020 8B3D[04000000]          	mov edi,dword[timeval_buf+4]
+    46                                  	
+    47 00000026 B84E000000              	mov eax,0x4e
+    48 0000002B BB[00000000]            	mov ebx,timeval_buf
+    49 00000030 CD80                    	int 0x80
+    50                                  
+    51 00000032 293D[04000000]          	sub dword[timeval_buf+4],edi
+    52 00000038 8B3D[04000000]          	mov edi,dword[timeval_buf+4]
     53                                  
-    54                                  print_endl:
-    55 0000001A 50                      	push eax						;
-    56 0000001B 53                      	push ebx						; preserving registers
-    57 0000001C 51                      	push ecx						;
-    58                                  	
-    59 0000001D B804000000              	mov eax,0x04					;
-    60 00000022 BB01000000              	mov ebx,0x01					;
-    61 00000027 B9[20000000]            	mov ecx,endl					; printing endl string to stdout
-    62 0000002C BA02000000              	mov edx,endl_len				;
-    63 00000031 CD80                    	int 0x80						;
-    64                                  
-    65 00000033 59                      	pop ecx							;
-    66 00000034 5B                      	pop ebx							; preserving registers
-    67 00000035 58                      	pop eax							;
-    68 00000036 C3                      	ret								; returning control
-    69                                  
-    70                                  
-    71                                  ;------------------------------------------------------------------------------
-    72                                  ; print_time	:	prints timeval concatenated in decimal format to stdout
-    73                                  ; updated		:	2018-01-16
-    74                                  ; in			:	[none]
-    75                                  ; out			:	[none]
-    76                                  ; modifies		:	[none]
-    77                                  ; calls			:	cnv_long
-    78                                  ;
-    79                                  
-    80                                  print_time:
-    81 00000037 50                      	push eax						;
-    82 00000038 53                      	push ebx						;
-    83 00000039 51                      	push ecx						; preserving registers
-    84 0000003A 52                      	push edx						;
-    85 0000003B 56                      	push esi						;
-    86                                  
-    87 0000003C B04E                    	mov al,0x4e						; sys_gettimeofday code
-    88 0000003E BB[00000000]            	mov ebx,timeval_buf				; supplying timeval pointer
-    89 00000043 CD80                    	int 0x80						; making call to kernel
-    90                                  
-    91 00000045 A1[00000000]            	mov eax,dword[timeval_buf]		; loading first part of timeval to eax
-    92 0000004A B30A                    	mov bl,0x0a						; loading decimal base to bl
-    93 0000004C E832000000              	call cnv_long					; executing conversion function
-    94                                  
-    95 00000051 B804000000              	mov eax,0x04					;
-    96 00000056 BB01000000              	mov ebx,0x01					;
-    97 0000005B 88CA                    	mov dl,cl						; printing generated string to stdout
-    98 0000005D 89F1                    	mov ecx,esi						;
-    99 0000005F CD80                    	int 0x80						;
-   100                                  
-   101 00000061 A1[04000000]            	mov eax,dword[timeval_buf+4]	; loading second part of timeval to eax
-   102 00000066 B30A                    	mov bl,0x0a						; loading decimal base do bl
-   103 00000068 E816000000              	call cnv_long					; executing convertion function
-   104                                  
-   105 0000006D B804000000              	mov eax,0x04					;
-   106 00000072 BB01000000              	mov ebx,0x01					;
-   107 00000077 88CA                    	mov dl,cl						; printing generated string to stdout
-   108 00000079 89F1                    	mov ecx,esi						;
-   109 0000007B CD80                    	int 0x80						;
-   110                                  
-   111 0000007D 5E                      	pop esi							;
-   112 0000007E 5A                      	pop edx							;
-   113 0000007F 59                      	pop ecx							; preserving registers
-   114 00000080 5B                      	pop ebx							;
-   115 00000081 58                      	pop eax							;
-   116 00000082 C3                      	ret								; returning control
+    54 0000003E 89F8                    	mov eax,edi
+    55 00000040 B30A                    	mov bl,0x0a
+    56 00000042 E87F000000              	call cnv_long
+    57                                  	
+    58 00000047 B804000000              	mov eax,0x04
+    59 0000004C BB01000000              	mov ebx,0x01
+    60 00000051 88CA                    	mov dl,cl
+    61 00000053 89F1                    	mov ecx,esi
+    62 00000055 CD80                    	int 0x80
+    63                                  
+    64 00000057 B001                    	mov al,0x01						; setting syscall code 'exit'
+    65 00000059 B300                    	mov bl,0x0						; setting return code
+    66 0000005B CD80                    	int 0x80						; performing interrupt
+    67                                  
+    68                                  ;------------------------------------------------------------------------------
+    69                                  ; print_endl	:	prints line feed and carriage return characters to stdout
+    70                                  ; updated		:	2018-01-16
+    71                                  ; in			:	[none]
+    72                                  ; out			:	[none]
+    73                                  ; modifies		:	[none]
+    74                                  ; calls			:	[none]
+    75                                  ;
+    76                                  
+    77                                  print_endl:
+    78 0000005D 50                      	push eax						;
+    79 0000005E 53                      	push ebx						; preserving registers
+    80 0000005F 51                      	push ecx						;
+    81                                  	
+    82 00000060 B804000000              	mov eax,0x04					;
+    83 00000065 BB01000000              	mov ebx,0x01					;
+    84 0000006A B9[20000000]            	mov ecx,endl					; printing endl string to stdout
+    85 0000006F BA02000000              	mov edx,endl_len				;
+    86 00000074 CD80                    	int 0x80						;
+    87                                  
+    88 00000076 59                      	pop ecx							;
+    89 00000077 5B                      	pop ebx							; preserving registers
+    90 00000078 58                      	pop eax							;
+    91 00000079 C3                      	ret								; returning control
+    92                                  
+    93                                  
+    94                                  ;------------------------------------------------------------------------------
+    95                                  ; print_time	:	prints timeval concatenated in decimal format to stdout
+    96                                  ; updated		:	2018-01-16
+    97                                  ; in			:	[none]
+    98                                  ; out			:	[none]
+    99                                  ; modifies		:	[none]
+   100                                  ; calls			:	cnv_long
+   101                                  ;
+   102                                  
+   103                                  print_time:
+   104 0000007A 50                      	push eax						;
+   105 0000007B 53                      	push ebx						;
+   106 0000007C 51                      	push ecx						; preserving registers
+   107 0000007D 52                      	push edx						;
+   108 0000007E 56                      	push esi						;
+   109                                  
+   110 0000007F B04E                    	mov al,0x4e						; sys_gettimeofday code
+   111 00000081 BB[00000000]            	mov ebx,timeval_buf				; supplying timeval pointer
+   112 00000086 CD80                    	int 0x80						; making call to kernel
+   113                                  
+   114 00000088 A1[00000000]            	mov eax,dword[timeval_buf]		; loading first part of timeval to eax
+   115 0000008D B30A                    	mov bl,0x0a						; loading decimal base to bl
+   116 0000008F E832000000              	call cnv_long					; executing conversion function
    117                                  
-   118                                  
-   119                                  ;------------------------------------------------------------------------------
-   120                                  ; cnv_long	:	converts number to provided base and stores in a string
-   121                                  ; updated	:	2018-01-16
-   122                                  ; in		:	eax - number to convert
-   123                                  ;				bl	- base
-   124                                  ; out		:	esi - pointer to output string
-   125                                  ;				cl	- string length
-   126                                  ; modifies	:	[none]
-   127                                  ; calls		:	[none]
-   128                                  ;
-   129                                  
-   130                                  cnv_long:
-   131 00000083 50                      	push eax						;
-   132 00000084 52                      	push edx						; preserving registers
-   133 00000085 53                      	push ebx						;
-   134                                  
-   135 00000086 BE[1F000000]            	mov esi,cnv_long_str+cnv_long_str_len-1	; setting esi string pointer to the
-   136                                  											; end of string
-   137 0000008B B101                    	mov cl,0x01						; setting output string length (lf & cr)
-   138 0000008D 83E30F                  	and ebx,0x0f					; masking out first byte of ebx register
-   139                                  .cnv:
-   140 00000090 31D2                    	xor edx,edx						; emptying edx (remainder register)
-   141 00000092 F7F3                    	div ebx							; deviding eax by ebx, remainder in edx
-   142 00000094 80C230                  	add dl,'0'						; makinf digit an ascii char e.g. 1 -> '1'
-   143 00000097 FEC1                    	inc cl							; increment string size counter
-   144 00000099 80FA39                  	cmp dl,'9'						; check if base >10
-   145 0000009C 7603                    	jbe .append						; go to storing portion of the algorithms 
-   146                                  									; if no
-   147 0000009E 80C228                  	add dl,'a'-'9'					; else get a corresponding letter
-   148                                  .append:
-   149 000000A1 8816                    	mov byte[esi],dl				; store digit in string
-   150 000000A3 4E                      	dec esi							; move string pointer one up
-   151 000000A4 6683F800                	cmp ax,0						; check if number is fully converted
-   152 000000A8 75E6                    	jnz .cnv						; go to .cnz if not
-   153                                  	
-   154 000000AA 5B                      	pop ebx							;
-   155 000000AB 5A                      	pop edx							; preserving registers
-   156 000000AC 58                      	pop eax							;
-   157 000000AD C3                      	ret								; returning control
+   118 00000094 B804000000              	mov eax,0x04					;
+   119 00000099 BB01000000              	mov ebx,0x01					;
+   120 0000009E 88CA                    	mov dl,cl						; printing generated string to stdout
+   121 000000A0 89F1                    	mov ecx,esi						;
+   122 000000A2 CD80                    	int 0x80						;
+   123                                  
+   124 000000A4 A1[04000000]            	mov eax,dword[timeval_buf+4]	; loading second part of timeval to eax
+   125 000000A9 B30A                    	mov bl,0x0a						; loading decimal base do bl
+   126 000000AB E816000000              	call cnv_long					; executing convertion function
+   127                                  
+   128 000000B0 B804000000              	mov eax,0x04					;
+   129 000000B5 BB01000000              	mov ebx,0x01					;
+   130 000000BA 88CA                    	mov dl,cl						; printing generated string to stdout
+   131 000000BC 89F1                    	mov ecx,esi						;
+   132 000000BE CD80                    	int 0x80						;
+   133                                  
+   134 000000C0 5E                      	pop esi							;
+   135 000000C1 5A                      	pop edx							;
+   136 000000C2 59                      	pop ecx							; preserving registers
+   137 000000C3 5B                      	pop ebx							;
+   138 000000C4 58                      	pop eax							;
+   139 000000C5 C3                      	ret								; returning control
+   140                                  
+   141                                  
+   142                                  ;------------------------------------------------------------------------------
+   143                                  ; cnv_long	:	converts number to provided base and stores in a string
+   144                                  ; updated	:	2018-01-16
+   145                                  ; in		:	eax - number to convert
+   146                                  ;				bl	- base
+   147                                  ; out		:	esi - pointer to output string
+   148                                  ;				cl	- string length
+   149                                  ; modifies	:	[none]
+   150                                  ; calls		:	[none]
+   151                                  ;
+   152                                  
+   153                                  cnv_long:
+   154 000000C6 50                      	push eax						;
+   155 000000C7 52                      	push edx						; preserving registers
+   156 000000C8 53                      	push ebx						;
+   157                                  
+   158 000000C9 BE[1F000000]            	mov esi,cnv_long_str+cnv_long_str_len-1	; setting esi string pointer to the
+   159                                  											; end of string
+   160 000000CE B101                    	mov cl,0x01						; setting output string length (lf & cr)
+   161 000000D0 83E30F                  	and ebx,0x0f					; masking out first byte of ebx register
+   162                                  .cnv:
+   163 000000D3 31D2                    	xor edx,edx						; emptying edx (remainder register)
+   164 000000D5 F7F3                    	div ebx							; deviding eax by ebx, remainder in edx
+   165 000000D7 80C230                  	add dl,'0'						; makinf digit an ascii char e.g. 1 -> '1'
+   166 000000DA FEC1                    	inc cl							; increment string size counter
+   167 000000DC 80FA39                  	cmp dl,'9'						; check if base >10
+   168 000000DF 7603                    	jbe .append						; go to storing portion of the algorithms 
+   169                                  									; if no
+   170 000000E1 80C228                  	add dl,'a'-'9'					; else get a corresponding letter
+   171                                  .append:
+   172 000000E4 8816                    	mov byte[esi],dl				; store digit in string
+   173 000000E6 4E                      	dec esi							; move string pointer one up
+   174 000000E7 6683F800                	cmp ax,0						; check if number is fully converted
+   175 000000EB 75E6                    	jnz .cnv						; go to .cnz if not
+   176                                  
+   177 000000ED 5B                      	pop ebx							;
+   178 000000EE 5A                      	pop edx							; preserving registers
+   179 000000EF 58                      	pop eax							;
+   180 000000F0 C3                      	ret								; returning control
