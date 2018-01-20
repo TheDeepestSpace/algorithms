@@ -1,0 +1,45 @@
+     1                                  ;------------------------------------------------------------------------------
+     2                                  ; Object file	:	print_util_lib.o
+     3                                  ; Version		:	0.0
+     4                                  ; Created date 	:	2018-01-20
+     5                                  ; Last update	:	2018-01-20
+     6                                  ; Author		:	Boris
+     7                                  ; Description	:	???
+     8                                  ;
+     9                                  ; Assemble		: see ../makefile
+    10                                  ;------------------------------------------------------------------------------
+    11                                  
+    12                                  section .data
+    13                                  
+    14                                  									; for print_endl
+    15                                  									; -----------------------------------------
+    16 00000000 0A0E                    	endl: db 0x0a,0x0e				; end of line string declaration
+    17                                  	endl_len: equ $-endl			; end of line string length declaration
+    18                                  
+    19                                  section .text
+    20                                  	global print_endl				; declaring global access for print_endl
+    21                                  
+    22                                  ;------------------------------------------------------------------------------
+    23                                  ; print_endl	:	prints line feed and carriage return characters to stdout
+    24                                  ; updated		:	2018-01-16
+    25                                  ; in			:	[none]
+    26                                  ; out			:	[none]
+    27                                  ; modifies		:	[none]
+    28                                  ; calls			:	[none]
+    29                                  ;
+    30                                  
+    31                                  print_endl:
+    32 00000000 50                      	push eax						;
+    33 00000001 53                      	push ebx						; preserving registers
+    34 00000002 51                      	push ecx						;
+    35                                  	
+    36 00000003 B804000000              	mov eax,0x04					;
+    37 00000008 BB01000000              	mov ebx,0x01					;
+    38 0000000D B9[00000000]            	mov ecx,endl					; printing endl string to stdout
+    39 00000012 BA02000000              	mov edx,endl_len				;
+    40 00000017 CD80                    	int 0x80						;
+    41                                  
+    42 00000019 59                      	pop ecx							;
+    43 0000001A 5B                      	pop ebx							; preserving registers
+    44 0000001B 58                      	pop eax							;
+    45 0000001C C3                      	ret								; returning contro	
