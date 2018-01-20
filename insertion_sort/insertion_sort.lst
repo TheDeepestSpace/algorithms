@@ -1,8 +1,28 @@
-     1                                  section .text
-     2                                  	global _start
-     3                                  
-     4                                  _start:
-     5                                  
-     6 00000000 B001                    	mov al,0x00000001
-     7 00000002 B300                    	mov bl,0x00000000
-     8 00000004 CD80                    	int 0x80
+     1                                  ;------------------------------------------------------------------------------
+     2                                  ; Executable file	:	insertion_sort
+     3                                  ; Version			:	0.0
+     4                                  ; Created date 		:	2018-01-16
+     5                                  ; Last update		:	2018-01-16
+     6                                  ; Author			:	Boris
+     7                                  ; Description		:	???
+     8                                  ;
+     9                                  ; Assemble			:	see makefile
+    10                                  ;------------------------------------------------------------------------------
+    11                                  
+    12                                  extern print_time
+    13                                  extern print_endl
+    14                                  
+    15                                  
+    16                                  section .text
+    17                                  	global _start					; declaring starting point
+    18                                  
+    19                                  _start:
+    20 00000000 E8(00000000)            	call print_time					; executing print_time
+    21 00000005 E8(00000000)            	call print_endl					; executing print_endl
+    22                                  
+    23 0000000A E8(00000000)            	call print_time					; executing print_time [1]
+    24 0000000F E8(00000000)            	call print_endl					; executing print_endl [1]
+    25                                  
+    26 00000014 B001                    	mov al,0x01						; setting syscall code 'exit'
+    27 00000016 B300                    	mov bl,0x0						; setting return code
+    28 00000018 CD80                    	int 0x80						; performing interrupt
