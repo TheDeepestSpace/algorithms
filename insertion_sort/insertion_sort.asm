@@ -9,11 +9,20 @@
 ; Assemble			:	see makefile
 ;------------------------------------------------------------------------------
 
+extern print_time
+extern print_endl
+
+
 section .text
-	global _start		; declaring starting point
+	global _start					; declaring starting point
 
 _start:
+	call print_time					; executing print_time
+	call print_endl					; executing print_endl
 
-	mov al,0x00000001	; setting syscallcode 'exit'
-	mov bl,0x00000000	; setting return code
-	int 0x80			; performing interrupt
+	call print_time					; executing print_time [1]
+	call print_endl					; executing print_endl [1]
+
+	mov al,0x01						; setting syscall code 'exit'
+	mov bl,0x0						; setting return code
+	int 0x80						; performing interrupt
