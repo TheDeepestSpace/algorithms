@@ -1,0 +1,70 @@
+     1                                  ;------------------------------------------------------------------------------
+     2                                  ; Object file	:	cnv_lib.o
+     3                                  ; Version		:	0.0
+     4                                  ; Created date 	:	2018-01-20
+     5                                  ; Last update	:	2018-01-20
+     6                                  ; Author		:	Boris
+     7                                  ; Description	:	???
+     8                                  ;
+     9                                  ; Assemble		: see ../makefile
+    10                                  ;------------------------------------------------------------------------------
+    11                                  
+    12                                  
+    13                                  section .data
+    14                                  
+    15                                  									; for cnv_long
+    16                                  									;------------------------------------------
+    17                                  	cnv_long_str: 					; empty string to hold convertion string
+    18                                  									; of 32 NILs, 1 linefeed and 
+    19                                  									; 1 carriage return
+    20 00000000 000000000000000000-     				db 0x0,0x0,0x0,0x0,0x0,0x0,0x0,0x0,0x0,0x0,
+    20 00000009 00                 
+    21 0000000A 000000000000000000-     				db 0x0,0x0,0x0,0x0,0x0,0x0,0x0,0x0,0x0,0x0,
+    21 00000013 00                 
+    22 00000014 000000000000000000-     				db 0x0,0x0,0x0,0x0,0x0,0x0,0x0,0x0,0x0,0x0,
+    22 0000001D 00                 
+    23 0000001E 0000                    				db 0x0,0x0
+    24                                  	cnv_long_str_len: equ $-cnv_long_str	; length of cnv_long_str
+    25                                  
+    26                                  section .text
+    27                                  	global cnv_long					; declaring global access for cnv_long
+    28                                  
+    29                                  ;------------------------------------------------------------------------------
+    30                                  ; cnv_long	:	converts number to provided base and stores in a string
+    31                                  ; updated	:	2018-01-16
+    32                                  ; in		:	eax - number to convert
+    33                                  ;				bl	- base
+    34                                  ; out		:	esi - pointer to output string
+    35                                  ;				cl	- string length
+    36                                  ; modifies	:	[none]
+    37                                  ; calls		:	[none]
+    38                                  ;
+    39                                  
+    40                                  cnv_long:
+    41 00000000 50                      	push eax						;
+    42 00000001 52                      	push edx						; preserving registers
+    43 00000002 53                      	push ebx						;
+    44                                  
+    45 00000003 BE[1F000000]            	mov esi,cnv_long_str+cnv_long_str_len-1	; setting esi string pointer to the
+    46                                  											; end of string
+    47 00000008 B101                    	mov cl,0x01						; setting output string length (lf & cr)
+    48 0000000A 83E30F                  	and ebx,0x0f					; masking out first byte of ebx register
+    49                                  .cnv:
+    50 0000000D 31D2                    	xor edx,edx						; emptying edx (remainder register)
+    51 0000000F F7F3                    	div ebx							; deviding eax by ebx, remainder in edx
+    52 00000011 80C230                  	add dl,'0'						; makinf digit an ascii char e.g. 1 -> '1'
+    53 00000014 FEC1                    	inc cl							; increment string size counter
+    54 00000016 80FA39                  	cmp dl,'9'						; check if base >10
+    55 00000019 7603                    	jbe .append						; go to storing portion of the algorithms 
+    56                                  									; if no
+    57 0000001B 80C228                  	add dl,'a'-'9'					; else get a corresponding letter
+    58                                  .append:
+    59 0000001E 8816                    	mov byte[esi],dl				; store digit in string
+    60 00000020 4E                      	dec esi							; move string pointer one up
+    61 00000021 6683F800                	cmp ax,0						; check if number is fully converted
+    62 00000025 75E6                    	jnz .cnv						; go to .cnz if not
+    63                                  
+    64 00000027 5B                      	pop ebx							;
+    65 00000028 5A                      	pop edx							; preserving registers
+    66 00000029 58                      	pop eax							;
+    67 0000002A C3                      	ret								; returning control
