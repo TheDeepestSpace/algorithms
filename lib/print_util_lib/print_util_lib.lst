@@ -9,37 +9,96 @@
      9                                  ; Assemble		: see ../makefile
     10                                  ;------------------------------------------------------------------------------
     11                                  
-    12                                  section .data
+    12                                  extern cnv_long
     13                                  
-    14                                  									; for print_endl
-    15                                  									; -----------------------------------------
-    16 00000000 0A0E                    	endl: db 0x0a,0x0e				; end of line string declaration
-    17                                  	endl_len: equ $-endl			; end of line string length declaration
-    18                                  
-    19                                  section .text
-    20                                  	global print_endl				; declaring global access for print_endl
-    21                                  
-    22                                  ;------------------------------------------------------------------------------
-    23                                  ; print_endl	:	prints line feed and carriage return characters to stdout
-    24                                  ; updated		:	2018-01-16
-    25                                  ; in			:	[none]
-    26                                  ; out			:	[none]
-    27                                  ; modifies		:	[none]
-    28                                  ; calls			:	[none]
-    29                                  ;
-    30                                  
-    31                                  print_endl:
-    32 00000000 50                      	push eax						;
-    33 00000001 53                      	push ebx						; preserving registers
-    34 00000002 51                      	push ecx						;
-    35                                  	
-    36 00000003 B804000000              	mov eax,0x04					;
-    37 00000008 BB01000000              	mov ebx,0x01					;
-    38 0000000D B9[00000000]            	mov ecx,endl					; printing endl string to stdout
-    39 00000012 BA02000000              	mov edx,endl_len				;
-    40 00000017 CD80                    	int 0x80						;
-    41                                  
-    42 00000019 59                      	pop ecx							;
-    43 0000001A 5B                      	pop ebx							; preserving registers
-    44 0000001B 58                      	pop eax							;
-    45 0000001C C3                      	ret								; returning contro	
+    14                                  section .data
+    15                                  
+    16                                  									; for print_endl
+    17                                  									; -----------------------------------------
+    18 00000000 0A0E                    	endl: db 0x0a,0x0e				; end of line string declaration
+    19                                  	endl_len: equ $-endl			; end of line string length declaration
+    20                                  
+    21                                  section .text
+    22                                  	global print_endl				; declaring global access for print_endl
+    23                                  	global print_string				; declaring global access for print_string
+    24                                  
+    25                                  ;------------------------------------------------------------------------------
+    26                                  ; print_endl	:	prints line feed and carriage return characters to stdout
+    27                                  ; updated		:	2018-01-16
+    28                                  ; in			:	[none]
+    29                                  ; out			:	[none]
+    30                                  ; modifies		:	[none]
+    31                                  ; calls			:	[none]
+    32                                  ;
+    33                                  
+    34                                  print_endl:
+    35 00000000 50                      	push eax						;
+    36 00000001 53                      	push ebx						; preserving registers
+    37 00000002 51                      	push ecx						;
+    38                                  	
+    39 00000003 B804000000              	mov eax,0x04					;
+    40 00000008 BB01000000              	mov ebx,0x01					;
+    41 0000000D B9[00000000]            	mov ecx,endl					; printing endl string to stdout
+    42 00000012 BA02000000              	mov edx,endl_len				;
+    43 00000017 CD80                    	int 0x80						;
+    44                                  
+    45 00000019 59                      	pop ecx							;
+    46 0000001A 5B                      	pop ebx							; preserving registers
+    47 0000001B 58                      	pop eax							;
+    48 0000001C C3                      	ret								; returning contro	
+    49                                  
+    50                                  ;------------------------------------------------------------------------------
+    51                                  ;
+    52                                  
+    53                                  print_string: 
+    54 0000001D 50                      	push eax
+    55 0000001E 53                      	push ebx
+    56 0000001F 51                      	push ecx
+    57 00000020 56                      	push esi
+    58                                  
+    59                                  .loop:
+    60 00000021 83F900                  	cmp ecx,0
+    61 00000024 743D                    	je .done
+    62                                  
+    63 00000026 56                      	push esi
+    64                                  
+    65 00000027 51                      	push ecx
+    66                                  
+    67 00000028 8B06                    	mov eax,dword[esi]
+    68 0000002A E8(00000000)            	call cnv_long
+    69                                  
+    70 0000002F 53                      	push ebx
+    71 00000030 51                      	push ecx
+    72                                  
+    73 00000031 6A09                    	push 0x09
+    74 00000033 B804000000              	mov eax,0x04
+    75 00000038 BB01000000              	mov ebx,0x01
+    76 0000003D 89E1                    	mov ecx,esp 
+    77 0000003F BA01000000              	mov edx,0x01
+    78 00000044 CD80                    	int 0x80
+    79 00000046 83C404                  	add esp,0x4
+    80                                  
+    81 00000049 59                      	pop ecx
+    82                                  
+    83 0000004A B804000000              	mov eax,0x04
+    84 0000004F BB01000000              	mov ebx,0x01
+    85 00000054 88CA                    	mov dl,cl
+    86 00000056 89F1                    	mov ecx,esi
+    87 00000058 CD80                    	int 0x80
+    88                                  	
+    89 0000005A 5B                      	pop ebx
+    90 0000005B 59                      	pop ecx
+    91 0000005C 49                      	dec ecx
+    92                                  
+    93 0000005D 5E                      	pop esi
+    94 0000005E 83C604                  	add esi,0x04
+    95 00000061 EBBE                    	jmp .loop
+    96                                  .done:
+    97                                  	
+    98 00000063 5E                      	pop esi
+    99 00000064 59                      	pop ecx
+   100 00000065 5B                      	pop ebx
+   101 00000066 58                      	pop eax
+   102 00000067 C3                      	ret
+   103                                  
+   104                                  

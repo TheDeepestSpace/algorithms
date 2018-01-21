@@ -2,7 +2,7 @@
      2                                  ; Object file	:	cnv_lib.o
      3                                  ; Version		:	0.0
      4                                  ; Created date 	:	2018-01-20
-     5                                  ; Last update	:	2018-01-20
+     5                                  ; Last update	:	2018-01-21
      6                                  ; Author		:	Boris
      7                                  ; Description	:	???
      8                                  ;
@@ -47,7 +47,7 @@
     44                                  
     45 00000003 BE[1F000000]            	mov esi,cnv_long_str+cnv_long_str_len-1	; setting esi string pointer to the
     46                                  											; end of string
-    47 00000008 B101                    	mov cl,0x01						; setting output string length (lf & cr)
+    47 00000008 B100                    	mov cl,0x0						; setting output string length (lf & cr)
     48 0000000A 83E30F                  	and ebx,0x0f					; masking out first byte of ebx register
     49                                  .cnv:
     50 0000000D 31D2                    	xor edx,edx						; emptying edx (remainder register)
@@ -64,7 +64,8 @@
     61 00000021 6683F800                	cmp ax,0						; check if number is fully converted
     62 00000025 75E6                    	jnz .cnv						; go to .cnz if not
     63                                  
-    64 00000027 5B                      	pop ebx							;
-    65 00000028 5A                      	pop edx							; preserving registers
-    66 00000029 58                      	pop eax							;
-    67 0000002A C3                      	ret								; returning control
+    64 00000027 46                      	inc esi
+    65 00000028 5B                      	pop ebx							;
+    66 00000029 5A                      	pop edx							; preserving registers
+    67 0000002A 58                      	pop eax							;
+    68 0000002B C3                      	ret								; returning control
