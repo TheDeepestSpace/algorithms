@@ -10,7 +10,7 @@
 ;------------------------------------------------------------------------------
 
 
-%include "cnv_lib/cnv_lib.asm"		; bringing in cnv_lib for cnv_long
+extern cnv_long
 
 section .bss
 
