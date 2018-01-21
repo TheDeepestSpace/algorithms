@@ -9,6 +9,8 @@
 ; Assemble		: see ../makefile
 ;------------------------------------------------------------------------------
 
+extern cnv_long
+
 section .data
 
 									; for print_endl
@@ -18,6 +20,7 @@ section .data
 
 section .text
 	global print_endl				; declaring global access for print_endl
+	global print_string				; declaring global access for print_string
 
 ;------------------------------------------------------------------------------
 ; print_endl	:	prints line feed and carriage return characters to stdout
@@ -43,3 +46,59 @@ print_endl:
 	pop ebx							; preserving registers
 	pop eax							;
 	ret								; returning contro	
+
+;------------------------------------------------------------------------------
+;
+
+print_string: 
+	push eax
+	push ebx
+	push ecx
+	push esi
+
+.loop:
+	cmp ecx,0
+	je .done
+
+	push esi
+
+	push ecx
+
+	mov eax,dword[esi]
+	call cnv_long
+
+	push ebx
+	push ecx
+
+	push 0x09
+	mov eax,0x04
+	mov ebx,0x01
+	mov ecx,esp 
+	mov edx,0x01
+	int 0x80
+	add esp,0x4
+
+	pop ecx
+
+	mov eax,0x04
+	mov ebx,0x01
+	mov dl,cl
+	mov ecx,esi
+	int 0x80
+	
+	pop ebx
+	pop ecx
+	dec ecx
+
+	pop esi
+	add esi,0x04
+	jmp .loop
+.done:
+	
+	pop esi
+	pop ecx
+	pop ebx
+	pop eax
+	ret
+
+
