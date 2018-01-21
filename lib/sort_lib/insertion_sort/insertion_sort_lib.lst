@@ -1,0 +1,16 @@
+     1                                  ;------------------------------------------------------------------------------
+     2                                  ; Object file	:	insertion_sort_lib.o
+     3                                  ; Version		:	0.0
+     4                                  ; Created date 	:	2018-01-20
+     5                                  ; Last update	:	2018-01-20
+     6                                  ; Author		:	Boris
+     7                                  ; Description	:	???
+     8                                  ;
+     9                                  ; Assemble		: see ../../makefile
+    10                                  ;------------------------------------------------------------------------------
+    11                                  
+    12                                  section .text
+    13                                  	global insertion_sort
+    14                                  
+    15                                  insertion_sort:
+    16 00000000 6631C0                  	xor ax,ax
