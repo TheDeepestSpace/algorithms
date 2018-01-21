@@ -10,7 +10,25 @@
 ;------------------------------------------------------------------------------
 
 section .text
-	global insertion_sort
+	global insertion_sort			; declaring global access for 
+									; insertion_sort
+
+;------------------------------------------------------------------------------
+; insertion_sort	:	sorts provided string of dwords in accending order
+; updated			:	2018-01-20
+; in				:	esi - array pointer
+;						ecx	- array length
+; out				:	exi - array pointer
+; modifies			:	???
+; calls				:	???
 
 insertion_sort:
-	xor ax,ax
+	push esi
+	push ecx
+
+
+
+
+	pop esi
+	pop ecx
+	ret
