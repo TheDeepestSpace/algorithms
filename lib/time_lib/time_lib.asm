@@ -2,15 +2,16 @@
 ; Object file	:	time_lib.o
 ; Version		:	0.0
 ; Created date 	:	2018-01-20
-; Last update	:	2018-01-20
+; Last update	:	2018-01-21
 ; Author		:	Boris
 ; Description	:	???
 ;
 ; Assemble		:	see ../makefile
+;					need cnv_lib.o
 ;------------------------------------------------------------------------------
 
 
-extern cnv_long
+extern cnv_long						; bring in cnv_long from cnv_lib.o
 
 section .bss
 
