@@ -49,57 +49,64 @@ print_endl:
 	ret								; returning contro	
 
 ;------------------------------------------------------------------------------
+; print_string	:	print string of dword-numbers to stdoutput in given base
+;					notation
+; updated		:	2018-01-21
+; in			:	bl - base
+;				:	esi - string porinter
+; out			:	[none]
+; modifies		:	[none]
+; calls			:	cnv_long
 ;
 
 print_string: 
-	push eax
-	push ebx
-	push ecx
-	push esi
+	push eax						;
+	push ebx						; preserving rgisters
+	push ecx						;
+	push esi						;
 
 .loop:
-	cmp ecx,0
-	je .done
+	cmp ecx,0						; checking if counter reached zero
+	je .done						; go to .done subroutine if so
 
-	push esi
+	push esi						; save string pointer
+	push ecx						; save counter
 
-	push ecx
+	mov eax,dword[esi]				; move current dword to eax
+	call cnv_long					; call cnv_long
 
-	mov eax,dword[esi]
-	call cnv_long
+	push ebx						; save base register
+	push ecx						; save converted string length
 
-	push ebx
-	push ecx
+	push 0x09						; put '\t' onto the stack
+	mov eax,0x04					; 
+	mov ebx,0x01					;
+	mov ecx,esp 					; print tab to stdout
+	mov edx,0x01					;
+	int 0x80						;
+	add esp,0x4						; adjust stack pointer
 
-	push 0x09
-	mov eax,0x04
-	mov ebx,0x01
-	mov ecx,esp 
-	mov edx,0x01
-	int 0x80
-	add esp,0x4
+	pop ecx							; restore converted string length
 
-	pop ecx
-
-	mov eax,0x04
-	mov ebx,0x01
-	mov dl,cl
-	mov ecx,esi
-	int 0x80
+	mov eax,0x04					; 
+	mov ebx,0x01					;
+	mov dl,cl						; print converted string to stdout
+	mov ecx,esi						;
+	int 0x80						;
 	
-	pop ebx
-	pop ecx
-	dec ecx
+	pop ebx							; restore string base
+	pop ecx							; restore string counter
+	dec ecx							; decrement it by one
 
-	pop esi
-	add esi,0x04
-	jmp .loop
+	pop esi							; restore string pointer
+	add esi,0x04					; move up by one dword
+	jmp .loop						; continue to loop through the string
 .done:
 	
-	pop esi
-	pop ecx
-	pop ebx
-	pop eax
-	ret
+	pop esi							;
+	pop ecx							; restoring registers
+	pop ebx							;
+	pop eax							;
+	ret								; returnong control
 
 
