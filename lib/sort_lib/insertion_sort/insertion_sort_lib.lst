@@ -10,7 +10,53 @@
     10                                  ;------------------------------------------------------------------------------
     11                                  
     12                                  section .text
-    13                                  	global insertion_sort
-    14                                  
-    15                                  insertion_sort:
-    16 00000000 6631C0                  	xor ax,ax
+    13                                  	global insertion_sort			; declaring global access for 
+    14                                  									; insertion_sort
+    15                                  
+    16                                  ;------------------------------------------------------------------------------
+    17                                  ; insertion_sort	:	sorts provided string of dwords in accending order
+    18                                  ; updated			:	2018-01-20
+    19                                  ; in				:	esi - array pointer
+    20                                  ;						ecx	- array length
+    21                                  ; out				:	exi - array pointer
+    22                                  ; modifies			:	???
+    23                                  ; calls				:	???
+    24                                  
+    25                                  insertion_sort:
+    26 00000000 56                      	push esi
+    27 00000001 50                      	push eax
+    28 00000002 53                      	push ebx
+    29 00000003 51                      	push ecx
+    30 00000004 52                      	push edx
+    31 00000005 57                      	push edi
+    32                                  
+    33 00000006 BB01000000              	mov ebx,0x01
+    34                                  .loop_1:
+    35 0000000B 39CB                    	cmp ebx,ecx
+    36 0000000D 7722                    	ja .done
+    37 0000000F 8B149E                  	mov edx,[esi+ebx*4]
+    38 00000012 4B                      	dec ebx
+    39 00000013 89D8                    	mov eax,ebx
+    40 00000015 43                      	inc ebx
+    41                                  .loop_2:
+    42 00000016 83F8FF                  	cmp eax,0xffffffff
+    43 00000019 740F                    	je .after_1
+    44 0000001B 391486                  	cmp [esi+eax*4],edx
+    45 0000001E 760A                    	jbe .after_1
+    46                                  
+    47 00000020 8B3C86                  	mov edi,[esi+eax*4]
+    48 00000023 897C8604                	mov [esi+eax*4+4],edi
+    49 00000027 48                      	dec eax
+    50 00000028 EBEC                    	jmp .loop_2
+    51                                  .after_1:
+    52 0000002A 89548604                	mov [esi+eax*4+4],edx
+    53 0000002E 43                      	inc ebx
+    54 0000002F EBDA                    	jmp .loop_1
+    55                                  .done:
+    56 00000031 5F                      	pop edi
+    57 00000032 5A                      	pop edx
+    58 00000033 59                      	pop ecx
+    59 00000034 5B                      	pop ebx
+    60 00000035 58                      	pop eax
+    61 00000036 5E                      	pop esi
+    62 00000037 C3                      	ret
