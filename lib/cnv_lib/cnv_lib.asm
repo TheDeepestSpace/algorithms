@@ -2,11 +2,11 @@
 ; Object file	:	cnv_lib.o
 ; Version		:	0.0
 ; Created date 	:	2018-01-20
-; Last update	:	2018-01-20
+; Last update	:	2018-01-21
 ; Author		:	Boris
 ; Description	:	???
 ;
-; Assemble		: see ../makefile
+; Assemble		: 	see ../makefile
 ;------------------------------------------------------------------------------
 
 
@@ -44,7 +44,7 @@ cnv_long:
 
 	mov esi,cnv_long_str+cnv_long_str_len-1	; setting esi string pointer to the
 											; end of string
-	mov cl,0x01						; setting output string length (lf & cr)
+	mov cl,0x0						; setting output string length (lf & cr)
 	and ebx,0x0f					; masking out first byte of ebx register
 .cnv:
 	xor edx,edx						; emptying edx (remainder register)
@@ -61,6 +61,7 @@ cnv_long:
 	cmp ax,0						; check if number is fully converted
 	jnz .cnv						; go to .cnz if not
 
+	inc esi
 	pop ebx							;
 	pop edx							; preserving registers
 	pop eax							;
