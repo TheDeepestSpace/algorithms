@@ -2,7 +2,7 @@
      2                                  ; Executable file	:	insertion_sort
      3                                  ; Version			:	0.0
      4                                  ; Created date 		:	2018-01-16
-     5                                  ; Last update		:	2018-01-16
+     5                                  ; Last update		:	2018-01-21
      6                                  ; Author			:	Boris
      7                                  ; Description		:	???
      8                                  ;
@@ -11,18 +11,41 @@
     11                                  
     12                                  extern print_time
     13                                  extern print_endl
-    14                                  
-    15                                  
-    16                                  section .text
-    17                                  	global _start					; declaring starting point
-    18                                  
-    19                                  _start:
-    20 00000000 E8(00000000)            	call print_time					; executing print_time
-    21 00000005 E8(00000000)            	call print_endl					; executing print_endl
-    22                                  
-    23 0000000A E8(00000000)            	call print_time					; executing print_time [1]
-    24 0000000F E8(00000000)            	call print_endl					; executing print_endl [1]
-    25                                  
-    26 00000014 B001                    	mov al,0x01						; setting syscall code 'exit'
-    27 00000016 B300                    	mov bl,0x0						; setting return code
-    28 00000018 CD80                    	int 0x80						; performing interrupt
+    14                                  extern print_string
+    15                                  extern insertion_sort
+    16                                  
+    17                                  section .data
+    18 00000000 00F0FF01C01F0000F0-     	string_to_print: dd 0x01fff000,0x1fc0,0x01f0,0x1c,0x06
+    18 00000009 0100001C0000000600-
+    18 00000012 0000               
+    19                                  	string_to_print_len equ 0x05
+    20                                  
+    21                                  
+    22                                  section .text
+    23                                  	global _start					; declaring starting point
+    24                                  
+    25                                  _start:
+    26                                  
+    27 00000000 BB0A000000              	mov ebx,0x0a					; specifying base 10 in ebx
+    28 00000005 BE[00000000]            	mov esi,string_to_print			; moving string pointer to esi
+    29 0000000A B905000000              	mov ecx,string_to_print_len		; moving string length to ecx
+    30 0000000F E8(00000000)            	call print_string				; executing print_string
+    31 00000014 E8(00000000)            	call print_endl					; executing print_endl
+    32                                  
+    33 00000019 E8(00000000)            	call print_time					; executing print_time
+    34 0000001E E8(00000000)            	call print_endl					; executing print_endl
+    35                                  
+    36 00000023 E8(00000000)            	call insertion_sort				; executing insertion sort
+    37                                  
+    38 00000028 E8(00000000)            	call print_time					; executing print_time [1]
+    39 0000002D E8(00000000)            	call print_endl					; executing print_endl [1]
+    40                                  
+    41 00000032 BB0A000000              	mov ebx,0x0a					; specifying base 10 in ebx
+    42 00000037 BE[00000000]            	mov esi,string_to_print			; moving string pointer to esi
+    43 0000003C B905000000              	mov ecx,string_to_print_len		; moving string length to ecx
+    44 00000041 E8(00000000)            	call print_string				; executing print_string
+    45 00000046 E8(00000000)            	call print_endl					; executing print_endl
+    46                                  
+    47 0000004B B001                    	mov al,0x01						; setting syscall code 'exit'
+    48 0000004D B300                    	mov bl,0x0						; setting return code
+    49 0000004F CD80                    	int 0x80						; performing interrupt
