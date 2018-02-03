@@ -18,7 +18,7 @@ section .text
 ; updated			:	2018-01-20
 ; in				:	esi - array pointer
 ;						ecx	- array length
-; out				:	exi - array pointer
+; out				:	esi - array pointer
 ; modifies			:	[none]
 ; calls				:	[none]
 ;
