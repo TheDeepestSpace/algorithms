@@ -15,8 +15,8 @@ extern print_string
 extern insertion_sort
 
 section .data
-	string_to_print: dd 0x01fff000,0x1fc0,0x01f0,0x1c,0x06
-	string_to_print_len equ 0x05
+%include "string.txt"
+	string_to_print_len equ 0x2710
 
 
 section .text
