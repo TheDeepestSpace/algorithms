@@ -49,7 +49,7 @@ _start:
 									; str_unsorted_len
 .int:
 	int 0x80						; perform interrupt
-	
+
 	mov al,0x01						; setting syscall code 'exit'
 	mov bl,0x0						; setting return code
 	int 0x80						; performing interrupt

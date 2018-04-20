@@ -2,7 +2,7 @@
      2                                  ; Executable file	:	is_sorted
      3                                  ; Version			:	0.0
      4                                  ; Created date 		:	2018-02-10
-     5                                  ; Last update		:	2018-02-10
+     5                                  ; Last update		:	2018-02-17
      6                                  ; Author			:	Boris
      7                                  ; Description		:	???
      8                                  ;
@@ -12,18 +12,18 @@
     12                                  extern check_sorted
     13                                  
     14                                  section .data
-    15                                  %include "string.txt"
-     1 00000000 FA920E00FA920E0012- <1> string_to_check: dd 955130, 955130, 1042194, 1143827, 1170402, 1170499
+    15                                  %include "string.txt"				; include text file with array values
+     1 00000000 9020EE38FA920E0012- <1> string_to_check: dd 955130000, 955130, 1042194, 1143827, 1170402, 1170499
      1 00000009 E70F0013741100E2DB- <1>
      1 00000012 110043DC1100        <1>
-    16                                  	string_to_check_len equ 0x06
+    16                                  	string_to_check_len equ 0x06	; define length of that array
     17                                  
-    18 00000018 736F727465640A0D        	str_sorted: db 'sorted',10,13
-    19                                  	str_sorted_len equ $-str_sorted
+    18 00000018 736F727465640A0D        	str_sorted: db 'sorted',10,13	; define 'sorted' string
+    19                                  	str_sorted_len equ $-str_sorted	; define length of 'sorted' string
     20                                  
-    21 00000020 756E736F727465640A-     	str_unsorted: db 'unsorted',10,13
+    21 00000020 756E736F727465640A-     	str_unsorted: db 'unsorted',10,13	; define 'unsorted' string
     21 00000029 0D                 
-    22                                  	str_unsorted_len equ $-str_unsorted
+    22                                  	str_unsorted_len equ $-str_unsorted	; define length of 'unsorted' string
     23                                  
     24                                  
     25                                  section .text
@@ -35,21 +35,25 @@
     31 00000005 BE[00000000]            	mov esi,string_to_check			; moving string pointer to esi
     32 0000000A B906000000              	mov ecx,string_to_check_len		; moving string length to ecx
     33                                  
-    34 0000000F E8(00000000)            	call check_sorted
+    34 0000000F E8(00000000)            	call check_sorted				; make call to check_sort routine
     35                                  
-    36 00000014 B804000000              	mov eax,0x04
-    37 00000019 BB02000000              	mov ebx,0x02
-    38 0000001E 730C                    	jnc .unsorted
-    39                                  
-    40 00000020 B9[18000000]            	mov ecx,str_sorted
-    41 00000025 BA08000000              	mov edx,str_sorted_len
-    42 0000002A EB0A                    	jmp .int
-    43                                  .unsorted:
-    44 0000002C B9[20000000]            	mov ecx,str_unsorted
-    45 00000031 BA0A000000              	mov edx,str_unsorted_len
-    46                                  .int:
-    47 00000036 CD80                    	int 0x80
-    48                                  	
-    49 00000038 B001                    	mov al,0x01						; setting syscall code 'exit'
-    50 0000003A B300                    	mov bl,0x0						; setting return code
-    51 0000003C CD80                    	int 0x80						; performing interrupt
+    36 00000014 B804000000              	mov eax,0x04					; set sys_write syscall code
+    37 00000019 BB02000000              	mov ebx,0x02					; set std_out file for write
+    38 0000001E 730C                    	jnc .unsorted					; go to .unsorted subroutine if carry flag
+    39                                  									; (modified by check_sort) is not set
+    40                                  
+    41 00000020 B9[18000000]            	mov ecx,str_sorted				; set output buffer to value of str_sorted
+    42 00000025 BA08000000              	mov edx,str_sorted_len			; set length of output buffer to
+    43                                  									; str_sorted_len
+    44 0000002A EB0A                    	jmp .int						; go to .int subroutine
+    45                                  .unsorted:
+    46 0000002C B9[20000000]            	mov ecx,str_unsorted			; set output buffer to value of
+    47                                  									; str_unsorted
+    48 00000031 BA0A000000              	mov edx,str_unsorted_len		; set length of output buffer to
+    49                                  									; str_unsorted_len
+    50                                  .int:
+    51 00000036 CD80                    	int 0x80						; perform interrupt
+    52                                  	
+    53 00000038 B001                    	mov al,0x01						; setting syscall code 'exit'
+    54 0000003A B300                    	mov bl,0x0						; setting return code
+    55 0000003C CD80                    	int 0x80						; performing interrupt
