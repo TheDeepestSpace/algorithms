@@ -19,32 +19,32 @@
     19                                  ; in			:	esi - string pointer
     20                                  ;					ecx - string length
     21                                  ; out			:	CF  - 0x0 or 0x01
-    22                                  ; modifies		:	???
+    22                                  ; modifies		:	CF
     23                                  ; calls			:	???
     24                                  ;
     25                                  
     26                                  check_sorted:
-    27 00000000 50                      	push eax
-    28 00000001 53                      	push ebx
+    27 00000000 50                      	push eax						; preserve registers
+    28 00000001 53                      	push ebx						;
     29                                  
-    30 00000002 31DB                    	xor ebx,ebx
-    31 00000004 49                      	dec ecx
+    30 00000002 31DB                    	xor ebx,ebx						; xor out ebx
+    31 00000004 49                      	dec ecx							; decrement string length counter
     32                                  .loop:
-    33 00000005 39CB                    	cmp ebx,ecx
-    34 00000007 740F                    	je .sorted
-    35 00000009 8B049E                  	mov eax,[esi+ebx*4]
-    36 0000000C 3B449E04                	cmp eax,[esi+ebx*4+4]
-    37 00000010 7703                    	ja .unsorted
-    38 00000012 43                      	inc ebx
-    39 00000013 EBF0                    	jmp .loop
+    33 00000005 39CB                    	cmp ebx,ecx						; compare string traverser with length
+    34 00000007 740F                    	je .sorted						; go to .sorted if they are equial
+    35 00000009 8B049E                  	mov eax,[esi+ebx*4]				; move current dword to eax
+    36 0000000C 3B449E04                	cmp eax,[esi+ebx*4+4]			; compare eax against next dword
+    37 00000010 7703                    	ja .unsorted					; go to .unsorted if eax is above
+    38 00000012 43                      	inc ebx							; increment string traverser
+    39 00000013 EBF0                    	jmp .loop						; go to .loop
     40                                  .unsorted:
-    41 00000015 F8                      	clc
-    42 00000016 EB03                    	jmp .done
+    41 00000015 F8                      	clc								; clear carry flag
+    42 00000016 EB03                    	jmp .done						; go to .done
     43                                  .sorted:
-    44 00000018 F9                      	stc
-    45 00000019 EB00                    	jmp .done
+    44 00000018 F9                      	stc								; set carry flag
+    45 00000019 EB00                    	jmp .done						; go to .done
     46                                  .done:
-    47 0000001B 5B                      	pop ebx
-    48 0000001C 58                      	pop eax
+    47 0000001B 5B                      	pop ebx							; retrieving registers
+    48 0000001C 58                      	pop eax							;
     49                                  
-    50 0000001D C3                      	ret
+    50 0000001D C3                      	ret								; returning control

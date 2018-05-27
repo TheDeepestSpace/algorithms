@@ -19,32 +19,32 @@ section .text
 ; in			:	esi - string pointer
 ;					ecx - string length
 ; out			:	CF  - 0x0 or 0x01
-; modifies		:	???
+; modifies		:	CF
 ; calls			:	???
 ;
 
 check_sorted:
-	push eax
-	push ebx
+	push eax						; preserve registers
+	push ebx						;
 
-	xor ebx,ebx
-	dec ecx
+	xor ebx,ebx						; xor out ebx
+	dec ecx							; decrement string length counter
 .loop:
-	cmp ebx,ecx
-	je .sorted
-	mov eax,[esi+ebx*4]
-	cmp eax,[esi+ebx*4+4]
-	ja .unsorted
-	inc ebx
-	jmp .loop
+	cmp ebx,ecx						; compare string traverser with length
+	je .sorted						; go to .sorted if they are equial
+	mov eax,[esi+ebx*4]				; move current dword to eax
+	cmp eax,[esi+ebx*4+4]			; compare eax against next dword
+	ja .unsorted					; go to .unsorted if eax is above
+	inc ebx							; increment string traverser
+	jmp .loop						; go to .loop
 .unsorted:
-	clc
-	jmp .done
+	clc								; clear carry flag
+	jmp .done						; go to .done
 .sorted:
-	stc
-	jmp .done
+	stc								; set carry flag
+	jmp .done						; go to .done
 .done:
-	pop ebx
-	pop eax
+	pop ebx							; retrieving registers
+	pop eax							;
 
-	ret
+	ret								; returning control
