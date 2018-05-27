@@ -16,7 +16,7 @@ section .data
 
 									; for print_endl
 									; -----------------------------------------
-	endl: db 0x0a,0x0e				; end of line string declaration
+	endl: db 0x0a					; end of line string declaration
 	endl_len: equ $-endl			; end of line string length declaration
 
 section .text
@@ -36,7 +36,7 @@ print_endl:
 	push eax						;
 	push ebx						; preserving registers
 	push ecx						;
-	
+
 	mov eax,0x04					;
 	mov ebx,0x01					;
 	mov ecx,endl					; printing endl string to stdout
@@ -46,7 +46,7 @@ print_endl:
 	pop ecx							;
 	pop ebx							; preserving registers
 	pop eax							;
-	ret								; returning contro	
+	ret								; returning contro
 
 ;------------------------------------------------------------------------------
 ; print_string	:	print string of dword-numbers to stdoutput in given base
@@ -59,7 +59,7 @@ print_endl:
 ; calls			:	cnv_long
 ;
 
-print_string: 
+print_string:
 	push eax						;
 	push ebx						; preserving rgisters
 	push ecx						;
@@ -79,7 +79,7 @@ print_string:
 	push ecx						; save converted string length
 
 	push 0x09						; put '\t' onto the stack
-	mov eax,0x04					; 
+	mov eax,0x04					;
 	mov ebx,0x01					;
 	mov ecx,esp 					; print tab to stdout
 	mov edx,0x01					;
@@ -88,12 +88,12 @@ print_string:
 
 	pop ecx							; restore converted string length
 
-	mov eax,0x04					; 
+	mov eax,0x04					;
 	mov ebx,0x01					;
 	mov dl,cl						; print converted string to stdout
 	mov ecx,esi						;
 	int 0x80						;
-	
+
 	pop ebx							; restore string base
 	pop ecx							; restore string counter
 	dec ecx							; decrement it by one
@@ -102,7 +102,7 @@ print_string:
 	add esi,0x04					; move up by one dword
 	jmp .loop						; continue to loop through the string
 .done:
-	
+
 	pop esi							;
 	pop ecx							; restoring registers
 	pop ebx							;
