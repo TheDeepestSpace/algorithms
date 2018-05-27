@@ -13,9 +13,10 @@
     13                                  extern print_endl
     14                                  extern print_string
     15                                  extern insertion_sort
-    16                                  
-    17                                  section .data
-    18                                  %include "string.txt"
+    16                                  extern check_sorted
+    17                                  
+    18                                  section .data
+    19                                  %include "string.txt"
      1 00000000 8F3B9211138E823BCE- <1> string_to_print: dd 294796175, 998411795, 793362894, 777665523, 493546457, 707989266, 263444026, 972390311, 274808853, 978085010, 459300915, 371570195, 930426623, 488042033, 986696105, 809455048, 197285894, 10408973
      1 00000009 C1492FF33B5A2ED9EB- <1>
      1 00000012 6A1D120F332A3AD6B3- <1>
@@ -4461,34 +4462,59 @@
      1 00009C2A 830AECAE690B91F90F- <1>
      1 00009C33 18841EBC131659C312- <1>
      1 00009C3C 621AC702            <1>
-    19                                  	string_to_print_len equ 0x2710
-    20                                  
+    20                                  	string_to_print_len equ 0x2710
     21                                  
-    22                                  section .text
-    23                                  	global _start					; declaring starting point
+    22 00009C40 736F727465640A0D        	str_sorted: db 'sorted',10,13	; define 'sorted' string
+    23                                  	str_sorted_len equ $-str_sorted	; define length of 'sorted' string
     24                                  
-    25                                  _start:
-    26                                  
-    27 00000000 BB0A000000              	mov ebx,0x0a					; specifying base 10 in ebx
-    28 00000005 BE[00000000]            	mov esi,string_to_print			; moving string pointer to esi
-    29 0000000A B910270000              	mov ecx,string_to_print_len		; moving string length to ecx
-    30 0000000F E8(00000000)            	call print_string				; executing print_string
-    31 00000014 E8(00000000)            	call print_endl					; executing print_endl
-    32                                  
-    33 00000019 E8(00000000)            	call print_time					; executing print_time
-    34 0000001E E8(00000000)            	call print_endl					; executing print_endl
-    35                                  
-    36 00000023 E8(00000000)            	call insertion_sort				; executing insertion sort
-    37                                  
-    38 00000028 E8(00000000)            	call print_time					; executing print_time [1]
-    39 0000002D E8(00000000)            	call print_endl					; executing print_endl [1]
-    40                                  
-    41 00000032 BB0A000000              	mov ebx,0x0a					; specifying base 10 in ebx
-    42 00000037 BE[00000000]            	mov esi,string_to_print			; moving string pointer to esi
-    43 0000003C B910270000              	mov ecx,string_to_print_len		; moving string length to ecx
-    44 00000041 E8(00000000)            	call print_string				; executing print_string
-    45 00000046 E8(00000000)            	call print_endl					; executing print_endl
-    46                                  
-    47 0000004B B001                    	mov al,0x01						; setting syscall code 'exit'
-    48 0000004D B300                    	mov bl,0x0						; setting return code
-    49 0000004F CD80                    	int 0x80						; performing interrupt
+    25 00009C48 756E736F727465640A-     	str_unsorted: db 'unsorted',10,13	; define 'unsorted' string
+    25 00009C51 0D                 
+    26                                  	str_unsorted_len equ $-str_unsorted	; define length of 'unsorted' string
+    27                                  
+    28                                  
+    29                                  section .text
+    30                                  	global _start					; declaring starting point
+    31                                  
+    32                                  _start:
+    33                                  
+    34 00000000 BB0A000000              	mov ebx,0x0a					; specifying base 10 in ebx
+    35 00000005 BE[00000000]            	mov esi,string_to_print			; moving string pointer to esi
+    36 0000000A B910270000              	mov ecx,string_to_print_len		; moving string length to ecx
+    37 0000000F E8(00000000)            	call print_string				; executing print_string
+    38 00000014 E8(00000000)            	call print_endl					; executing print_endl
+    39                                  
+    40 00000019 E8(00000000)            	call print_time					; executing print_time
+    41 0000001E E8(00000000)            	call print_endl					; executing print_endl
+    42                                  
+    43 00000023 E8(00000000)            	call insertion_sort				; executing insertion sort
+    44                                  
+    45 00000028 E8(00000000)            	call print_time					; executing print_time [1]
+    46 0000002D E8(00000000)            	call print_endl					; executing print_endl [1]
+    47                                  
+    48 00000032 BB0A000000              	mov ebx,0x0a					; specifying base 10 in ebx
+    49 00000037 BE[00000000]            	mov esi,string_to_print			; moving string pointer to esi
+    50 0000003C B910270000              	mov ecx,string_to_print_len		; moving string length to ecx
+    51 00000041 E8(00000000)            	call print_string				; executing print_string
+    52 00000046 E8(00000000)            	call print_endl					; executing print_endl
+    53                                  
+    54 0000004B E8(00000000)            	call check_sorted				; make call to check_sorted routine
+    55                                  
+    56 00000050 B804000000              	mov eax,0x04					; set sys_wraite syscall code
+    57 00000055 BB02000000              	mov ebx,0x02					; set std_out file fr write
+    58 0000005A 730C                    	jnc .unsorted					; go to .unsorted if CF=0
+    59                                  
+    60 0000005C B9[409C0000]            	mov ecx,str_sorted				; set output buffer to value of str_sorted
+    61 00000061 BA08000000              	mov edx,str_sorted_len			; set length of output buffer to
+    62                                  									; str_sorted_len
+    63 00000066 EB0A                    	jmp .int						; go to .int
+    64                                  .unsorted:
+    65 00000068 B9[489C0000]            	mov ecx,str_unsorted			; set output buffer to value of
+    66                                  									; str_unsorted
+    67 0000006D BA0A000000              	mov edx,str_unsorted_len		; set length of output buffer to
+    68                                  									; str_unsorted_len
+    69                                  .int:
+    70 00000072 CD80                    	int 0x80						; perform interrupt
+    71                                  
+    72 00000074 B001                    	mov al,0x01						; setting syscall code 'exit'
+    73 00000076 B300                    	mov bl,0x0						; setting return code
+    74 00000078 CD80                    	int 0x80						; performing interrupt
