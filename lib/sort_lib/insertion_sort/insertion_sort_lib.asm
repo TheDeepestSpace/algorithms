@@ -4,13 +4,13 @@
 ; Created date 	:	2018-01-20
 ; Last update	:	2018-01-22
 ; Author		:	Boris
-; Description	:	???
+; Description	:	insertion sort sub-library
 ;
 ; Assemble		: see ../../makefile
 ;------------------------------------------------------------------------------
 
 section .text
-	global insertion_sort			; declaring global access for 
+	global insertion_sort			; declaring global access for
 									; insertion_sort
 
 ;------------------------------------------------------------------------------
@@ -38,17 +38,17 @@ insertion_sort:
 	ja .done						; go to .done if so
 	mov edx,[esi+ebx*4]				; copy current element to edx
 
-	dec ebx							; 
+	dec ebx							;
 	mov eax,ebx						; set subcounter to counter-1
 	inc ebx							;
 .loop_2:
 	cmp eax,0xffffffff				; check if subcounter is -1
-	je .after_1						; go to after-outer-loop subroutine 
+	je .after_1						; go to after-outer-loop subroutine
 	cmp [esi+eax*4],edx				; check if current element is less then
 									; the one denoted by current subcounter
 	jbe .after_1					; go to after-outer-loop subroutine
 
-	mov edi,[esi+eax*4]				; move element denoted by subcounter to 
+	mov edi,[esi+eax*4]				; move element denoted by subcounter to
 	mov [esi+eax*4+4],edi			; an element right after it
 	dec eax							; decrement subcouter
 	jmp .loop_2						; repeat inner loop
